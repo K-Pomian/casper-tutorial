@@ -18,7 +18,7 @@ use casper_contract::{
 use casper_types::{
     api_error::ApiError,
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    CLType, CLValue, PublicKey,
+    CLType, CLValue,
 };
 
 // Creating constants for values within the contract package.
@@ -77,7 +77,7 @@ pub extern "C" fn counter_reset() {
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
 
-    storage::write(uref, 0);
+    storage::write(uref, 0_i64);
 }
 
 #[no_mangle]
@@ -115,7 +115,7 @@ pub extern "C" fn call() {
         ENTRY_POINT_COUNTER_RESET,
         Vec::new(),
         CLType::Unit,
-        PublicKey,
+        EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
 
