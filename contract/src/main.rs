@@ -18,7 +18,7 @@ use casper_contract::{
 use casper_types::{
     api_error::ApiError,
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    CLType, CLValue,
+    CLType, CLValue, PublicKey,
 };
 
 // Creating constants for values within the contract package.
@@ -29,6 +29,7 @@ const CONTRACT_ACCESS_UREF: &str = "kpomian_counter_access_uref";
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_DEC: &str = "counter_dec";
+const ENTRY_POINT_COUNTER_RESET: &str = "counter_reset";
 
 // Creating constants for values within the contract.
 const CONTRACT_VERSION_KEY: &str = "version";
@@ -70,6 +71,16 @@ pub extern "C" fn counter_dec() {
 }
 
 #[no_mangle]
+pub extern "C" fn counter_reset() {
+    let uref = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
+
+    storage::write(uref, 0);
+}
+
+#[no_mangle]
 pub extern "C" fn call() {
     let mut named_keys = NamedKeys::new();
 
@@ -98,6 +109,13 @@ pub extern "C" fn call() {
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_RESET,
+        Vec::new(),
+        CLType::Unit,
+        PublicKey,
         EntryPointType::Contract,
     ));
 
