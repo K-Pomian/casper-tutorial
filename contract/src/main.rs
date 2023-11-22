@@ -28,6 +28,7 @@ const CONTRACT_ACCESS_UREF: &str = "kpomian_counter_access_uref";
 // Creating constants for the various contract entry points.
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
+const ENTRY_POINT_COUNTER_DEC: &str = "counter_dec";
 
 // Creating constants for values within the contract.
 const CONTRACT_VERSION_KEY: &str = "version";
@@ -87,6 +88,13 @@ pub extern "C" fn call() {
     ));
     entry_points.add_entry_point(EntryPoint::new(
         ENTRY_POINT_COUNTER_INC,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_DEC,
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
