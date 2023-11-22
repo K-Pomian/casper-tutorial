@@ -59,6 +59,16 @@ pub extern "C" fn counter_inc() {
 }
 
 #[no_mangle]
+pub extern "C" fn counter_dec() {
+    let uref = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
+
+    storage::add(uref, -1);
+}
+
+#[no_mangle]
 pub extern "C" fn call() {
     let mut named_keys = NamedKeys::new();
 
