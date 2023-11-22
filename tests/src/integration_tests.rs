@@ -19,6 +19,7 @@ mod tests {
     const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
     const ENTRY_POINT_COUNTER_DEC: &str = "counter_dec";
+    const ENTRY_POINT_COUNTER_RESET: &str = "counter_reset";
 
     fn install_system_contracts() -> InMemoryWasmTestBuilder {
         let mut builder = InMemoryWasmTestBuilder::default();
@@ -85,6 +86,7 @@ mod tests {
         assert!(contract.has_entry_point(ENTRY_POINT_COUNTER_INC));
         assert!(contract.has_entry_point(ENTRY_POINT_COUNTER_GET));
         assert!(contract.has_entry_point(ENTRY_POINT_COUNTER_DEC));
+        assert!(contract.has_entry_point(ENTRY_POINT_COUNTER_RESET));
     }
 
     #[test]
@@ -165,5 +167,44 @@ mod tests {
             .expect("Stored value should be i64");
 
         assert!(count_after - count_before == -1);
+    }
+
+    #[test]
+    fn test_counter_reset() {
+        let mut builder = install_system_contracts();
+        let contract_hash = install_counter_contract(&mut builder);
+        let contract = builder.get_contract(contract_hash).unwrap();
+
+        let increment_request = ExecuteRequestBuilder::contract_call_by_hash(
+            *DEFAULT_ACCOUNT_ADDR,
+            contract_hash,
+            ENTRY_POINT_COUNTER_INC,
+            runtime_args! {},
+        )
+        .build();
+        builder.exec(increment_request).expect_success().commit();
+
+        let reset_request = ExecuteRequestBuilder::contract_call_by_hash(
+            *DEFAULT_ACCOUNT_ADDR,
+            contract_hash,
+            ENTRY_POINT_COUNTER_RESET,
+            runtime_args! {},
+        )
+        .build();
+        builder.exec(reset_request).expect_success().commit();
+
+        let count_key = *contract
+            .named_keys()
+            .get(COUNT_KEY)
+            .expect("Count uref should exist");
+        let count = builder
+            .query(None, count_key, &[])
+            .expect(format!("No stored value found associated with {} key.", COUNT_KEY).as_str())
+            .as_cl_value()
+            .expect(format!("{} is not associated with CL value", COUNT_KEY).as_str())
+            .clone()
+            .into_t::<i64>()
+            .expect("Stored value should be i64");
+        assert_eq!(count, 0);
     }
 }
