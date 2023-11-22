@@ -126,8 +126,16 @@ pub extern "C" fn call() {
         Some(CONTRACT_ACCESS_UREF.to_string()),
     );
 
+    // let counter_package_hash = runtime::get_key(CONTRACT_PACKAGE_NAME)
+    //     .unwrap_or_revert()
+    //     .into_hash()
+    //     .unwrap()
+    //     .into();
+
+    // let (stored_contract_hash, contract_version) =
+    //     storage::add_contract_version(counter_package_hash, entry_points, NamedKeys::default());
+
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
-
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
