@@ -1,5 +1,6 @@
 target
 *.wasm
 Cargo.lock
-node_modules
-logs
+node-scripts/node_modules
+node-scripts/logs
+node-scripts/package-lock.json
